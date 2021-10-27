@@ -3,8 +3,8 @@
 class XML
 {
 
-    protected $atributos;
-    protected $rules;
+    public $atributos;
+    public $rules;
 
     function __construct()
     {
@@ -12,7 +12,7 @@ class XML
         $this->rules = array();
     }
 
-    protected function setSatFormat($value)
+    public function setSatFormat($value)
     {
         $aux = trim(strip_tags($value));
         if (!XML::isUtf8($aux)) {
@@ -49,9 +49,25 @@ class XML
     }
 
     //Resolver funcionalidad
-    private function setAtribute($attr, $value)
+    public function setAtribute($attr, $value)
     {
-        $this->atributos[] = ($attr != 'TipoDeComprobante') ? $this->setSatFormat($value) : $value;
+        /**
+         * Código original (el que no funciona):
+         * $this->atributos[] = ($attr != 'TipoDeComprobante') ? $this->setSatFormat($value) : $value;
+         * 
+         * Código nuevo:
+         * $this->atributos[$attr] = ($attr != 'TipoDeComprobante') ? $this->setSatFormat($value) : $value;
+         * 
+         * ¿Qué se agregó/quitó?
+         * Se le agregó la variable $attr dentro de los [] de $this->atributos contenedora del atributo con valor dinámico.
+         * En esta función en particular $this vendría siendo nuestro objeto $cfdi_xml el cuál está definido en nuestro index.php
+         *      Dentro de esta función, $this puede tener 2 valores:
+         *          1.- $cfdi_xml->emisor
+         *          2.- $cfdi_xml->comprobante
+         * 
+         * El nuevo código se encargará de asignarle una key especifica dentro de los [].
+         */
+        $this->atributos[$attr] = ($attr != 'TipoDeComprobante') ? $this->setSatFormat($value) : $value;
     }
 
     function getAtributes()
